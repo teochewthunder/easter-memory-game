@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Easter Memory Game</title>
+		<style>
+			div {outline: 0px solid #FF0000;}
+			
+			body
+			{
+				font-size: 12px;
+				font-family: verdana;
+			}
+
+			#appContainer
+			{	
+				height: 700px;			
+				width: 500px;
+				margin: 5px auto 0 auto;
+			}
+
+			#easterMemoryGameContainer
+			{	
+				height: 100%;	
+				width: 100%;
+			}
+
+			#timeContainer
+			{	
+				height: 150px;			
+				width: 100%;
+				text-align: center;
+				color: #000000;
+			}
+
+			#buttonContainer
+			{	
+				height: 50px;			
+				width: 100%;
+				text-align: center;
+				color: #000000;
+			}
+
+			#buttonContainer button
+			{
+				margin: 0.25em;
+				width: 5em;
+				height: 2.5em;
+				text-align: center;
+				border-radius: 5px;
+				border: 0px solid #000000;
+				background-color: rgba(255, 200, 0, 1);
+				color: rgba(255, 255, 255, 1);
+				font-weight: bold;
+			}
+
+			#buttonContainer button:hover
+			{
+				background-color: rgba(255, 200, 0, 0.5);
+				color: rgba(0, 0, 0, 1);
+			}
+
+			#deckContainer
+			{	
+				height: 500px;			
+				width: 100%;
+			}	
+
+			.cardContainer
+			{	
+				height: 72px;
+				width: 72px;
+				margin-left: 10px;
+				margin-top: 10px;
+				float: left;
+			}
+
+			.card
+			{
+				height: 100%;
+				width: 100%;
+				border-radius: 5px;	
+				overflow: hidden;			
+				cursor: pointer;
+				transform-origin: 50% 50%;
+				transition: all 0.1s;
+			}
+
+			.closed:before
+			{
+				display: block;
+				content: "EASTER MEMORY GAME";
+				text-align: center;
+				height: 100%;	
+				width: 100%;
+				background-color: #FFCC00;
+				color: #FFFFFF;
+			}
+
+			.opened:before
+			{
+				display: block;
+				content: "";
+				height: 100%;	
+				width: 100%;
+				background-size: cover;
+				background-position: center center;
+				background-repeat: no-repeat;
+			}
+
+			.template0:before
+			{
+				background-image: url(easter0.jpg);
+			}
+
+			.template1:before
+			{
+				background-image: url(easter1.jpg);
+			}	
+
+			.template2:before
+			{
+				background-image: url(easter2.jpg);
+			}	
+
+			.template3:before
+			{
+				background-image: url(easter3.jpg);
+			}	
+
+			.template4:before
+			{
+				background-image: url(easter4.jpg);
+			}
+
+			.template5:before
+			{
+				background-image: url(easter5.jpg);
+			}				
+		</style>
+
+    	<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    	<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    	<script src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
+	</head>
+
+	<body>
+	    <div id="appContainer">
+
+	    </div>
+
+	    <script type="text/babel">
+	    	class EasterMemoryGame extends React.Component 
+	    	{
+	    		constructor(props)
+	    		{
+      				super(props);
+      				this.state = 
+      				{
+      					"seconds": 100,
+      					"cards": [],
+      					"pauseForAnimation": false
+      				};
+  				}
+
+  				showCards()
+  				{
+  					for (var i = 0; i < this.state.cards.length; i++)
+  					{
+  						document.getElementById(i).className = "card closed";
+  					}
+  				}
+
+	    		flipCard(cardIndex)
+	    		{
+	    			if (!this.state.pauseForAnimation)
+	    			{
+	    				this.stopTimer();
+	    				this.setState({"pausedForAnimation": true});
+
+		    			var card = document.getElementById(cardIndex);
+	    				var cards = this.state.cards;
+	    				var functionParent = this;
+
+		    			if (cards[cardIndex].isOpened)
+		    			{
+		    				if (!cards[cardIndex].isMatched)
+		    				{
+			    				card.style.transform="rotateY(90deg)";
+			    				setTimeout
+			    				(
+			    					function()
+			    					{
+					    				card.style.transform="rotateY(0deg)";
+							    		card.className = "card closed";
+							    		cards[cardIndex].isOpened = false;
+
+					    				setTimeout
+					    				(
+					    					function()
+					    					{
+					    						functionParent.setState({"cards": cards});
+							    				functionParent.startTimer();		    					
+					    					},
+					    					150
+					    				)			    					
+			    					},
+			    					150
+			    				);
+		    				}
+		    			}
+		    			else
+		    			{
+		    				card.style.transform="rotateY(90deg)";
+		    				setTimeout
+		    				(
+		    					function()
+		    					{
+				    				card.style.transform="rotateY(0deg)";
+						    		card.className = "card opened template" + functionParent.state.cards[cardIndex].template;
+						    		cards[cardIndex].isOpened = true;
+
+				    				setTimeout
+				    				(
+				    					function()
+				    					{
+		    								var matching = cards.filter(function(x) {return x.isOpened && !x.isMatched;});
+
+						    				if (matching.length == 2)
+						    				{
+						    					var card1 = document.getElementById(matching[0].id);
+						    					var card2 = document.getElementById(matching[1].id);
+
+						    					if (matching[0].template == matching[1].template)
+						    					{
+						    						cards[matching[0].id].isMatched = true;
+						    						cards[matching[1].id].isMatched = true;
+
+						    						var notMatched = cards.filter(function(x) {return !x.isMatched;});
+
+						    						if (notMatched.length > 0)
+						    						{
+						    							functionParent.setState({"pausedForAnimation": false});
+						    							functionParent.startTimer();
+						    						}
+						    						
+						    						functionParent.setState({"cards": cards});
+						    					}
+						    					else
+						    					{
+						    						card1.style.transform="rotateY(90deg)";
+						    						card2.style.transform="rotateY(90deg)";
+
+								    				setTimeout
+								    				(
+								    					function()
+								    					{
+										    				card1.style.transform="rotateY(0deg)";
+												    		card1.className = "card closed";
+												    		cards[matching[0].id].isOpened = false;
+
+										    				card2.style.transform="rotateY(0deg)";
+												    		card2.className = "card closed";
+												    		cards[matching[1].id].isOpened = false;
+
+										    				setTimeout
+										    				(
+										    					function()
+										    					{
+										    						functionParent.setState({"cards": cards});
+						    										functionParent.setState({"pausedForAnimation": false});
+						    										functionParent.startTimer();
+										    					},
+										    					100
+										    				)			    					
+								    					},
+								    					100
+								    				);
+						    					}
+						    				}
+						    				else
+						    				{
+					    						functionParent.setState({"cards": cards});
+	    										functionParent.setState({"pausedForAnimation": false});
+	    										functionParent.startTimer();	
+						    				}
+				    					},
+				    					100
+				    				);			    					
+		    					},
+		    					100
+		    				);
+		    			}
+	    			}
+	    		}
+
+	    		stopTimer()
+	    		{
+	    			clearInterval(this.interval);
+	    		}
+
+	    		startTimer()
+	    		{
+	    			this.interval = setInterval
+	    			(
+	    				() => 
+	    				{
+	    					this.setState({"seconds": this.state.seconds - 1});
+
+	    					if (this.state.seconds == 0)
+	    					{
+	    						this.stopTimer();
+	    					}
+				    	}, 
+				    	1000
+				    );
+	    		}
+
+	    		reset()
+	    		{
+	    			this.stopTimer();
+
+	    			var cards = [];
+	    			var totalTemplates = 6;
+	    			var totalCards = totalTemplates * totalTemplates;
+
+	    			var functionParent = this;
+
+	    			for(var i = 0; i < totalCards; i++)
+	    			{
+	    				var card = 
+	    				{
+	    					id: i,
+	    					template: undefined,
+	    					isMatched: false,
+	    					isOpened: false,
+	    					flip: function(e) 
+	    					{
+	    						functionParent.flipCard(e.currentTarget.id);
+	    					}
+	    				}
+
+	    				cards.push(card);
+	    			}
+
+					for (var i = 0; i < totalTemplates; i++)
+					{
+						var assigned = 0;
+
+						while (assigned < totalTemplates)
+						{
+							var unassigned = cards.filter(function(x) {return x.template == undefined;});
+							var randomIndex = Math.floor((Math.random() * (unassigned.length)));
+
+							cards[unassigned[randomIndex].id].template = i;
+							assigned++;
+						}
+					}
+
+	    			this.setState({"seconds": 100, "cards": cards, "pausedForAnimation": false});
+	    			this.showCards();
+
+	    			this.startTimer();
+	    		}
+
+				componentDidMount()
+				{
+				    this.reset();
+				}
+
+	    		render()
+	    		{
+    				var cardDisplay = this.state.cards.map(
+    					(item, key) =>
+    					{
+    						return (
+    							<div className="cardContainer" key={key}>
+						    		<div className="card closed" id={item.id} onClick={item.flip}>		  					  
+						    		</div>
+						    	</div>
+    						);
+    					}
+    				);
+
+					var message;
+					var buttonText;
+
+					var functionParent = this;
+					var btnClick = function() {functionParent.reset();}
+
+					var notMatched = this.state.cards.filter(function(x) {return !x.isMatched;});
+					if (notMatched.length == 0)
+					{
+						message = "CONGRATULATIONS! YOU HAVE COMPLETED THIS GAME IN ";
+						buttonText = "REPLAY";
+					}
+					else
+					{
+						if (this.state.seconds == 0)
+						{
+							message = "GAME OVER!";
+							buttonText = "REPLAY";
+						}
+						else
+						{
+							message = "TIME ELAPSED: ";
+							buttonText = "RESET";		
+						}
+					}
+
+					var timeDisplay = 
+					<div>
+					    		<br />{message}
+					    		<h1>{this.state.seconds}</h1>
+					    		seconds
+					</div>
+
+			    	return (
+				    	<div id="easterMemoryGameContainer">
+					    	<div id="timeContainer">
+					    		{timeDisplay}
+					    	</div>
+
+					    	<div id="buttonContainer">
+					    		<button onClick={btnClick}>{buttonText}</button>
+					    	</div>
+
+					    	<div id="deckContainer">
+								{cardDisplay}
+					    	</div>	
+				    	</div>
+			    	);    			
+	    		}
+	    	}
+
+			ReactDOM.render(<EasterMemoryGame />, document.getElementById("appContainer"));
+	    </script>
+	</body>
+</html> 
