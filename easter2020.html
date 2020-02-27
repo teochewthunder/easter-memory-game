@@ -148,9 +148,9 @@
 			}				
 		</style>
 
-    	<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
-    	<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-    	<script src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
+    		<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    		<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    		<script src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
 	</head>
 
 	<body>
@@ -178,7 +178,7 @@
       					"seconds": 100,
       					"cards": []
       				};
-  				}
+  			}
 
 	    		flipCard(cardIndex)
 	    		{
@@ -325,29 +325,29 @@
 	    				cards.push(card);
 	    			}
 
-					for (var i = 0; i < totalTemplates; i++)
+				for (var i = 0; i < totalTemplates; i++)
+				{
+					var assigned = 0;
+
+					while (assigned < totalTemplates)
 					{
-						var assigned = 0;
+						var unassigned = cards.filter(function(x) {return x.template == undefined;});
+						var randomIndex = Math.floor((Math.random() * (unassigned.length)));
 
-						while (assigned < totalTemplates)
-						{
-							var unassigned = cards.filter(function(x) {return x.template == undefined;});
-							var randomIndex = Math.floor((Math.random() * (unassigned.length)));
-
-							cards[unassigned[randomIndex].id].template = i;
-							assigned++;
-						}
+						cards[unassigned[randomIndex].id].template = i;
+						assigned++;
 					}
+				}
 
 	    			this.setState({"seconds": 100, "cards": cards, "pausedForAnimation": false});
 
 	    			this.startTimer();
 	    		}
 
-				componentDidMount()
-				{
-				    this.reset();
-				}
+			componentDidMount()
+			{
+				this.reset();
+			}
 
 	    		render()
 	    		{
@@ -366,38 +366,38 @@
     					}
     				);
 
-					var message;
-					var buttonText;
+				var message;
+				var buttonText;
 
-					var functionParent = this;
-					var btnClick = function() {functionParent.reset();}
+				var functionParent = this;
+				var btnClick = function() {functionParent.reset();}
 
-					var notMatched = this.state.cards.filter(function(x) {return !x.isMatched;});
-					if (notMatched.length == 0)
+				var notMatched = this.state.cards.filter(function(x) {return !x.isMatched;});
+				if (notMatched.length == 0)
+				{
+					message = "CONGRATULATIONS! YOU HAVE COMPLETED THIS GAME IN ";
+					buttonText = "REPLAY";
+				}
+				else
+				{
+					if (this.state.seconds == 0)
 					{
-						message = "CONGRATULATIONS! YOU HAVE COMPLETED THIS GAME IN ";
+						message = "GAME OVER!";
 						buttonText = "REPLAY";
 					}
 					else
 					{
-						if (this.state.seconds == 0)
-						{
-							message = "GAME OVER!";
-							buttonText = "REPLAY";
-						}
-						else
-						{
-							message = "TIME ELAPSED: ";
-							buttonText = "RESET";		
-						}
+						message = "TIME ELAPSED: ";
+						buttonText = "RESET";		
 					}
+				}
 
-					var timeDisplay = 
-					<div>
-					    		<br />{message}
-					    		<h1>{this.state.seconds}</h1>
-					    		seconds
-					</div>
+				var timeDisplay = 
+				<div>
+					    <br />{message}
+					    <h1>{this.state.seconds}</h1>
+					    seconds
+				</div>
 
 			    	return (
 				    	<div id="easterMemoryGameContainer">
@@ -417,7 +417,7 @@
 	    		}
 	    	}
 
-			ReactDOM.render(<EasterMemoryGame />, document.getElementById("appContainer"));
+		ReactDOM.render(<EasterMemoryGame />, document.getElementById("appContainer"));
 	    </script>
 	</body>
 </html> 
