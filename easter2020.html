@@ -11,6 +11,11 @@
 				font-family: verdana;
 			}
 
+			.preload
+			{
+				display:none;
+			}
+
 			#appContainer
 			{	
 				height: 700px;			
@@ -82,7 +87,7 @@
 				overflow: hidden;			
 				cursor: pointer;
 				transform-origin: 50% 50%;
-				transition: all 0.1s;
+				transition: all 0.2s;
 			}
 
 			.closed:before
@@ -135,6 +140,11 @@
 			.template5:before
 			{
 				background-image: url(easter5.jpg);
+			}
+
+			.matched:before
+			{
+				filter: brightness(20%);
 			}				
 		</style>
 
@@ -144,6 +154,15 @@
 	</head>
 
 	<body>
+		<div class="preload">
+			<img src="easter0.jpg" />
+			<img src="easter1.jpg" />
+			<img src="easter2.jpg" />
+			<img src="easter3.jpg" />
+			<img src="easter4.jpg" />
+			<img src="easter5.jpg" />
+		</div>
+
 	    <div id="appContainer">
 
 	    </div>
@@ -157,26 +176,14 @@
       				this.state = 
       				{
       					"seconds": 100,
-      					"cards": [],
-      					"pauseForAnimation": false
+      					"cards": []
       				};
-  				}
-
-  				showCards()
-  				{
-  					for (var i = 0; i < this.state.cards.length; i++)
-  					{
-  						document.getElementById(i).className = "card closed";
-  					}
   				}
 
 	    		flipCard(cardIndex)
 	    		{
-	    			if (!this.state.pauseForAnimation)
-	    			{
-	    				this.stopTimer();
-	    				this.setState({"pausedForAnimation": true});
-
+	    			if (this.state.seconds > 0)
+	    			{		
 		    			var card = document.getElementById(cardIndex);
 	    				var cards = this.state.cards;
 	    				var functionParent = this;
@@ -191,20 +198,11 @@
 			    					function()
 			    					{
 					    				card.style.transform="rotateY(0deg)";
-							    		card.className = "card closed";
 							    		cards[cardIndex].isOpened = false;
 
-					    				setTimeout
-					    				(
-					    					function()
-					    					{
-					    						functionParent.setState({"cards": cards});
-							    				functionParent.startTimer();		    					
-					    					},
-					    					150
-					    				)			    					
+							    		functionParent.setState({"cards": cards});			    					
 			    					},
-			    					150
+			    					200
 			    				);
 		    				}
 		    			}
@@ -216,78 +214,59 @@
 		    					function()
 		    					{
 				    				card.style.transform="rotateY(0deg)";
-						    		card.className = "card opened template" + functionParent.state.cards[cardIndex].template;
 						    		cards[cardIndex].isOpened = true;
+						    		functionParent.setState({"cards": cards});			    					
 
-				    				setTimeout
-				    				(
-				    					function()
+									var matching = cards.filter(function(x) {return x.isOpened && !x.isMatched;});
+
+				    				if (matching.length == 2)
+				    				{
+				    					var card1 = document.getElementById(matching[0].id);
+				    					var card2 = document.getElementById(matching[1].id);
+
+				    					if (matching[0].template == matching[1].template)
 				    					{
-		    								var matching = cards.filter(function(x) {return x.isOpened && !x.isMatched;});
+				    						cards[matching[0].id].isMatched = true;
+				    						cards[matching[1].id].isMatched = true;
 
-						    				if (matching.length == 2)
-						    				{
-						    					var card1 = document.getElementById(matching[0].id);
-						    					var card2 = document.getElementById(matching[1].id);
+						    				var notMatched = cards.filter(function(x) {return !x.isMatched;});
+						    				if (notMatched.length == 0) functionParent.stopTimer(); 
 
-						    					if (matching[0].template == matching[1].template)
-						    					{
-						    						cards[matching[0].id].isMatched = true;
-						    						cards[matching[1].id].isMatched = true;
-
-						    						var notMatched = cards.filter(function(x) {return !x.isMatched;});
-
-						    						if (notMatched.length > 0)
-						    						{
-						    							functionParent.setState({"pausedForAnimation": false});
-						    							functionParent.startTimer();
-						    						}
-						    						
-						    						functionParent.setState({"cards": cards});
-						    					}
-						    					else
+						    				functionParent.setState({"cards": cards});			    					
+				    					}
+				    					else
+				    					{
+						    				setTimeout
+						    				(
+						    					function()
 						    					{
 						    						card1.style.transform="rotateY(90deg)";
 						    						card2.style.transform="rotateY(90deg)";
-
 								    				setTimeout
 								    				(
 								    					function()
 								    					{
 										    				card1.style.transform="rotateY(0deg)";
-												    		card1.className = "card closed";
 												    		cards[matching[0].id].isOpened = false;
 
 										    				card2.style.transform="rotateY(0deg)";
-												    		card2.className = "card closed";
 												    		cards[matching[1].id].isOpened = false;
 
-										    				setTimeout
-										    				(
-										    					function()
-										    					{
-										    						functionParent.setState({"cards": cards});
-						    										functionParent.setState({"pausedForAnimation": false});
-						    										functionParent.startTimer();
-										    					},
-										    					100
-										    				)			    					
+										    				functionParent.setState({"cards": cards});				 		    	
 								    					},
-								    					100
-								    				);
-						    					}
-						    				}
-						    				else
-						    				{
-					    						functionParent.setState({"cards": cards});
-	    										functionParent.setState({"pausedForAnimation": false});
-	    										functionParent.startTimer();	
-						    				}
-				    					},
-				    					100
-				    				);			    					
+								    					200
+								    				);	 		    	
+						    					},
+						    					200
+						    				);
+				    					}
+				    				}
+				    				else
+				    				{
+			    						functionParent.setState({"cards": cards});
+				    				}		    					
 		    					},
-		    					100
+		    					200
 		    				);
 		    			}
 	    			}
@@ -296,23 +275,27 @@
 	    		stopTimer()
 	    		{
 	    			clearInterval(this.interval);
+	    			this.interval = undefined;
 	    		}
 
 	    		startTimer()
 	    		{
-	    			this.interval = setInterval
-	    			(
-	    				() => 
-	    				{
-	    					this.setState({"seconds": this.state.seconds - 1});
+	    			if (this.interval == undefined)
+	    			{
+		    			this.interval = setInterval
+		    			(
+		    				() => 
+		    				{
+		    					this.setState({"seconds": this.state.seconds - 1});
 
-	    					if (this.state.seconds == 0)
-	    					{
-	    						this.stopTimer();
-	    					}
-				    	}, 
-				    	1000
-				    );
+		    					if (this.state.seconds == 0)
+		    					{
+		    						this.stopTimer();
+		    					}
+					    	}, 
+					    	1000
+					    );	    				
+	    			}
 	    		}
 
 	    		reset()
@@ -357,7 +340,6 @@
 					}
 
 	    			this.setState({"seconds": 100, "cards": cards, "pausedForAnimation": false});
-	    			this.showCards();
 
 	    			this.startTimer();
 	    		}
@@ -372,9 +354,12 @@
     				var cardDisplay = this.state.cards.map(
     					(item, key) =>
     					{
+    						var template = "template" + item.template;
+    						var style = "card " + (item.isOpened ? "opened " + template + (item.isMatched ? " matched" : "") : "closed");
+
     						return (
     							<div className="cardContainer" key={key}>
-						    		<div className="card closed" id={item.id} onClick={item.flip}>		  					  
+						    		<div className={style} id={item.id} onClick={item.flip}>		  					  
 						    		</div>
 						    	</div>
     						);
