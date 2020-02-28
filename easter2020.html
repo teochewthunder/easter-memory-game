@@ -86,8 +86,16 @@
 				border-radius: 5px;	
 				overflow: hidden;			
 				cursor: pointer;
+				-webkit-transform-origin: 50% 50%;
 				transform-origin: 50% 50%;
+				-webkit-transition: all 0.2s;
 				transition: all 0.2s;
+			}
+
+			.flipping
+			{
+				-webkit-transform: rotateY(90deg);
+				transform: rotateY(90deg);
 			}
 
 			.closed:before
@@ -148,9 +156,9 @@
 			}				
 		</style>
 
-    		<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
-    		<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-    		<script src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
+    	<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    	<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    	<script src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
 	</head>
 
 	<body>
@@ -178,7 +186,56 @@
       					"seconds": 100,
       					"cards": []
       				};
-  			}
+  				}
+
+  				matchCards(arr)
+  				{
+  					var functionParent = this;
+  					var cards = arr;
+					var matching = cards.filter(function(x) {return x.isOpened && !x.isMatched;});
+
+    				if (matching.length == 2)
+    				{
+    					if (matching[0].template == matching[1].template)
+    					{
+    						cards[matching[0].id].isMatched = true;
+    						cards[matching[1].id].isMatched = true;
+
+		    				var notMatched = cards.filter(function(x) {return !x.isMatched;});
+		    				if (notMatched.length == 0) functionParent.stopTimer(); 
+
+		    				functionParent.setState({"cards": cards});			    					
+    					}
+    					else
+    					{
+		    				setTimeout
+		    				(
+		    					function()
+		    					{
+		    						cards[matching[0].id].isFlipping = true;
+		    						cards[matching[1].id].isFlipping = true;
+		    						functionParent.setState({"cards": cards});
+
+				    				setTimeout
+				    				(
+				    					function()
+				    					{
+						    				cards[matching[0].id].isFlipping = false;
+								    		cards[matching[0].id].isOpened = false;
+
+						    				cards[matching[1].id].isFlipping = false;
+								    		cards[matching[1].id].isOpened = false;
+
+						    				functionParent.setState({"cards": cards});				 		    	
+				    					},
+				    					200
+				    				);	 		    	
+		    					},
+		    					200
+		    				);
+    					}
+    				}	
+  				}
 
 	    		flipCard(cardIndex)
 	    		{
@@ -192,12 +249,14 @@
 		    			{
 		    				if (!cards[cardIndex].isMatched)
 		    				{
-			    				card.style.transform="rotateY(90deg)";
+			    				cards[cardIndex].isFlipping = true;
+			    				functionParent.setState({"cards": cards});
+
 			    				setTimeout
 			    				(
 			    					function()
 			    					{
-					    				card.style.transform="rotateY(0deg)";
+					    				cards[cardIndex].isFlipping = false;
 							    		cards[cardIndex].isOpened = false;
 
 							    		functionParent.setState({"cards": cards});			    					
@@ -208,63 +267,18 @@
 		    			}
 		    			else
 		    			{
-		    				card.style.transform="rotateY(90deg)";
+		    				cards[cardIndex].isFlipping = true;
+		    				functionParent.setState({"cards": cards});
+
 		    				setTimeout
 		    				(
 		    					function()
 		    					{
-				    				card.style.transform="rotateY(0deg)";
+				    				cards[cardIndex].isFlipping = false;
 						    		cards[cardIndex].isOpened = true;
 						    		functionParent.setState({"cards": cards});			    					
 
-									var matching = cards.filter(function(x) {return x.isOpened && !x.isMatched;});
-
-				    				if (matching.length == 2)
-				    				{
-				    					var card1 = document.getElementById(matching[0].id);
-				    					var card2 = document.getElementById(matching[1].id);
-
-				    					if (matching[0].template == matching[1].template)
-				    					{
-				    						cards[matching[0].id].isMatched = true;
-				    						cards[matching[1].id].isMatched = true;
-
-						    				var notMatched = cards.filter(function(x) {return !x.isMatched;});
-						    				if (notMatched.length == 0) functionParent.stopTimer(); 
-
-						    				functionParent.setState({"cards": cards});			    					
-				    					}
-				    					else
-				    					{
-						    				setTimeout
-						    				(
-						    					function()
-						    					{
-						    						card1.style.transform="rotateY(90deg)";
-						    						card2.style.transform="rotateY(90deg)";
-								    				setTimeout
-								    				(
-								    					function()
-								    					{
-										    				card1.style.transform="rotateY(0deg)";
-												    		cards[matching[0].id].isOpened = false;
-
-										    				card2.style.transform="rotateY(0deg)";
-												    		cards[matching[1].id].isOpened = false;
-
-										    				functionParent.setState({"cards": cards});				 		    	
-								    					},
-								    					200
-								    				);	 		    	
-						    					},
-						    					200
-						    				);
-				    					}
-				    				}
-				    				else
-				    				{
-			    						functionParent.setState({"cards": cards});
-				    				}		    					
+									functionParent.matchCards(cards);	    					
 		    					},
 		    					200
 		    				);
@@ -316,6 +330,7 @@
 	    					template: undefined,
 	    					isMatched: false,
 	    					isOpened: false,
+	    					isFlipping: false,
 	    					flip: function(e) 
 	    					{
 	    						functionParent.flipCard(e.currentTarget.id);
@@ -325,29 +340,29 @@
 	    				cards.push(card);
 	    			}
 
-				for (var i = 0; i < totalTemplates; i++)
-				{
-					var assigned = 0;
-
-					while (assigned < totalTemplates)
+					for (var i = 0; i < totalTemplates; i++)
 					{
-						var unassigned = cards.filter(function(x) {return x.template == undefined;});
-						var randomIndex = Math.floor((Math.random() * (unassigned.length)));
+						var assigned = 0;
 
-						cards[unassigned[randomIndex].id].template = i;
-						assigned++;
+						while (assigned < totalTemplates)
+						{
+							var unassigned = cards.filter(function(x) {return x.template == undefined;});
+							var randomIndex = Math.floor((Math.random() * (unassigned.length)));
+
+							cards[unassigned[randomIndex].id].template = i;
+							assigned++;
+						}
 					}
-				}
 
 	    			this.setState({"seconds": 100, "cards": cards, "pausedForAnimation": false});
 
 	    			this.startTimer();
 	    		}
 
-			componentDidMount()
-			{
-				this.reset();
-			}
+				componentDidMount()
+				{
+				    this.reset();
+				}
 
 	    		render()
 	    		{
@@ -356,6 +371,8 @@
     					{
     						var template = "template" + item.template;
     						var style = "card " + (item.isOpened ? "opened " + template + (item.isMatched ? " matched" : "") : "closed");
+
+    						style = style + (item.isFlipping ? " flipping" : "");
 
     						return (
     							<div className="cardContainer" key={key}>
@@ -366,38 +383,38 @@
     					}
     				);
 
-				var message;
-				var buttonText;
+					var message;
+					var buttonText;
 
-				var functionParent = this;
-				var btnClick = function() {functionParent.reset();}
+					var functionParent = this;
+					var btnClick = function() {functionParent.reset();}
 
-				var notMatched = this.state.cards.filter(function(x) {return !x.isMatched;});
-				if (notMatched.length == 0)
-				{
-					message = "CONGRATULATIONS! YOU HAVE COMPLETED THIS GAME IN ";
-					buttonText = "REPLAY";
-				}
-				else
-				{
-					if (this.state.seconds == 0)
+					var notMatched = this.state.cards.filter(function(x) {return !x.isMatched;});
+					if (notMatched.length == 0)
 					{
-						message = "GAME OVER!";
+						message = "CONGRATULATIONS! YOU HAVE COMPLETED THIS GAME IN ";
 						buttonText = "REPLAY";
 					}
 					else
 					{
-						message = "TIME ELAPSED: ";
-						buttonText = "RESET";		
+						if (this.state.seconds == 0)
+						{
+							message = "GAME OVER!";
+							buttonText = "REPLAY";
+						}
+						else
+						{
+							message = "TIME ELAPSED: ";
+							buttonText = "RESET";		
+						}
 					}
-				}
 
-				var timeDisplay = 
-				<div>
-					    <br />{message}
-					    <h1>{this.state.seconds}</h1>
-					    seconds
-				</div>
+					var timeDisplay = 
+					<div>
+					    		<br />{message}
+					    		<h1>{this.state.seconds}</h1>
+					    		seconds
+					</div>
 
 			    	return (
 				    	<div id="easterMemoryGameContainer">
@@ -417,7 +434,7 @@
 	    		}
 	    	}
 
-		ReactDOM.render(<EasterMemoryGame />, document.getElementById("appContainer"));
+			ReactDOM.render(<EasterMemoryGame />, document.getElementById("appContainer"));
 	    </script>
 	</body>
 </html> 
