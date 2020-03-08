@@ -192,7 +192,7 @@
   				matchCards(arr)
   				{
   					var cards = arr;
-					var matching = cards.filter(function(x) {return x.isOpened && !x.isMatched;});
+					var matching = cards.filter((x) => {return x.isOpened && !x.isMatched;});
 
     				if (matching.length == 2)
     				{
@@ -201,10 +201,10 @@
     						cards[matching[0].id].isMatched = true;
     						cards[matching[1].id].isMatched = true;
 
-		    				var notMatched = cards.filter(function(x) {return !x.isMatched;});
-		    				if (notMatched.length == 0) functionParent.stopTimer(); 
+		    				var notMatched = cards.filter((x) => {return !x.isMatched;});
+		    				if (notMatched.length == 0) this.stopTimer(); 
 
-		    				functionParent.setState({"cards": cards});			    					
+		    				this.setState({"cards": cards});			    					
     					}
     					else
     					{
@@ -319,8 +319,6 @@
 	    			var totalTemplates = 6;
 	    			var totalCards = totalTemplates * totalTemplates;
 
-	    			var functionParent = this;
-
 	    			for(var i = 0; i < totalCards; i++)
 	    			{
 	    				var card = 
@@ -330,9 +328,9 @@
 	    					isMatched: false,
 	    					isOpened: false,
 	    					isFlipping: false,
-	    					flip: function(e) 
+	    					flip: (e) =>
 	    					{
-	    						functionParent.flipCard(e.currentTarget.id);
+	    						this.flipCard(e.currentTarget.id);
 	    					}
 	    				}
 
@@ -345,7 +343,7 @@
 
 						while (assigned < totalTemplates)
 						{
-							var unassigned = cards.filter(function(x) {return x.template == undefined;});
+							var unassigned = cards.filter((x) => {return x.template == undefined;});
 							var randomIndex = Math.floor((Math.random() * (unassigned.length)));
 
 							cards[unassigned[randomIndex].id].template = i;
@@ -385,10 +383,9 @@
 					var message;
 					var buttonText;
 
-					var functionParent = this;
-					var btnClick = function() {functionParent.reset();}
+					var btnClick = () => {this.reset();}
 
-					var notMatched = this.state.cards.filter(function(x) {return !x.isMatched;});
+					var notMatched = this.state.cards.filter((x) => {return !x.isMatched;});
 					if (notMatched.length == 0)
 					{
 						message = "CONGRATULATIONS! YOU HAVE COMPLETED THIS GAME IN ";
