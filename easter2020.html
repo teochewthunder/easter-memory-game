@@ -191,7 +191,6 @@
 
   				matchCards(arr)
   				{
-  					var functionParent = this;
   					var cards = arr;
 					var matching = cards.filter(function(x) {return x.isOpened && !x.isMatched;});
 
@@ -211,23 +210,23 @@
     					{
 		    				setTimeout
 		    				(
-		    					function()
+		    					() => 
 		    					{
 		    						cards[matching[0].id].isFlipping = true;
 		    						cards[matching[1].id].isFlipping = true;
-		    						functionParent.setState({"cards": cards});
+		    						this.setState({"cards": cards});
 
 				    				setTimeout
 				    				(
-				    					function()
-				    					{
+				    					() => 
+		    							{
 						    				cards[matching[0].id].isFlipping = false;
 								    		cards[matching[0].id].isOpened = false;
 
 						    				cards[matching[1].id].isFlipping = false;
 								    		cards[matching[1].id].isOpened = false;
 
-						    				functionParent.setState({"cards": cards});				 		    	
+						    				this.setState({"cards": cards});				 		    	
 				    					},
 				    					200
 				    				);	 		    	
@@ -244,23 +243,22 @@
 	    			{		
 		    			var card = document.getElementById(cardIndex);
 	    				var cards = this.state.cards;
-	    				var functionParent = this;
 
 		    			if (cards[cardIndex].isOpened)
 		    			{
 		    				if (!cards[cardIndex].isMatched)
 		    				{
 			    				cards[cardIndex].isFlipping = true;
-			    				functionParent.setState({"cards": cards});
+			    				this.setState({"cards": cards});
 
 			    				setTimeout
 			    				(
-			    					function()
-			    					{
+			    					() => 
+		    						{
 					    				cards[cardIndex].isFlipping = false;
 							    		cards[cardIndex].isOpened = false;
 
-							    		functionParent.setState({"cards": cards});			    					
+							    		this.setState({"cards": cards});			    					
 			    					},
 			    					200
 			    				);
@@ -269,17 +267,17 @@
 		    			else
 		    			{
 		    				cards[cardIndex].isFlipping = true;
-		    				functionParent.setState({"cards": cards});
+		    				this.setState({"cards": cards});
 
 		    				setTimeout
 		    				(
-		    					function()
-		    					{
+			    				() => 
+			    				{
 				    				cards[cardIndex].isFlipping = false;
 						    		cards[cardIndex].isOpened = true;
-						    		functionParent.setState({"cards": cards});			    					
+						    		this.setState({"cards": cards});			    					
 
-									functionParent.matchCards(cards);	    					
+									this.matchCards(cards);	    					
 		    					},
 		    					200
 		    				);
@@ -410,17 +408,14 @@
 						}
 					}
 
-					var timeDisplay = 
-					<div>
-					    		<br />{message}
-					    		<h1>{this.state.seconds}</h1>
-					    		seconds
-					</div>
-
 			    	return (
 				    	<div id="easterMemoryGameContainer">
 					    	<div id="timeContainer">
-					    		{timeDisplay}
+								<div>
+						    		<br />{message}
+						    		<h1>{this.state.seconds}</h1>
+						    		seconds
+								</div>
 					    	</div>
 
 					    	<div id="buttonContainer">
