@@ -11,6 +11,7 @@
 - if *isOpened* is *true*, the card is closed. *isFlipping* and *isOpened* is set to *false*.
 - if *isOpened* is *false*, the card is opened. *isFlipping* is set to *false* and *isOpened* is set to *true*.
 -- if there is another card wose *isOpened* property is *true*, compare the two cards. If their *template* properties have the same value, they match. Set *isMatched* to true.
+
 -- if they do not match, close both cards.
 2. Whether opening or closing cards, the flipping animation is introduced to provide a slight delay so that the user can see the card images.
 
